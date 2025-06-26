@@ -1,0 +1,104 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 218 47% 8%;
+    --foreground: 0 0% 98%;
+    --card: 218 47% 8%;
+    --card-foreground: 0 0% 98%;
+    --popover: 218 47% 8%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 158 64% 52%;
+    --primary-foreground: 0 0% 98%;
+    --secondary: 217 33% 17%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 217 33% 17%;
+    --muted-foreground: 215 20% 65%;
+    --accent: 217 33% 17%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 217 33% 17%;
+    --input: 217 33% 17%;
+    --ring: 158 64% 52%;
+    --radius: 0.75rem;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-poolodds-gradient text-foreground min-h-screen;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+}
+
+@layer components {
+  .poolodds-card {
+    @apply bg-poolodds-card border border-poolodds-navy-light/20 backdrop-blur-sm;
+  }
+
+  .poolodds-button {
+    @apply bg-poolodds-accent hover:bg-poolodds-green-dark text-white font-medium transition-all duration-200 shadow-lg hover:shadow-xl;
+  }
+
+  .poolodds-button-outline {
+    @apply border border-poolodds-green text-poolodds-green hover:bg-poolodds-green hover:text-white transition-all duration-200;
+  }
+
+  .poolodds-input {
+    @apply bg-poolodds-navy-light/50 border border-poolodds-navy-light/30 text-white placeholder:text-poolodds-gray focus:border-poolodds-green focus:ring-poolodds-green/20;
+  }
+
+  .pool-ripple {
+    @apply animate-pool-ripple;
+  }
+
+  .odds-indicator {
+    @apply relative overflow-hidden;
+  }
+
+  .odds-indicator::before {
+    content: "";
+    @apply absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent;
+    transform: translateX(-100%);
+    animation: shimmer 2s infinite;
+  }
+
+  @keyframes shimmer {
+    100% {
+      transform: translateX(100%);
+    }
+  }
+}
+
+/* Mobile-first responsive utilities */
+@layer utilities {
+  .container-mobile {
+    @apply px-4 sm:px-6 lg:px-8;
+  }
+
+  .text-responsive {
+    @apply text-sm sm:text-base lg:text-lg;
+  }
+
+  .grid-responsive {
+    @apply grid-cols-1 sm:grid-cols-2 lg:grid-cols-3;
+  }
+
+  .flex-mobile {
+    @apply flex-col sm:flex-row;
+  }
+
+  .poolodds-glow {
+    box-shadow: 0 0 20px rgba(16, 185, 129, 0.3);
+  }
+
+  .poolodds-glow-purple {
+    box-shadow: 0 0 20px rgba(139, 92, 246, 0.3);
+  }
+}

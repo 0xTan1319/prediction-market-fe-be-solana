@@ -1,0 +1,75 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 240 10% 3.9%;
+    --foreground: 0 0% 98%;
+    --card: 240 10% 3.9%;
+    --card-foreground: 0 0% 98%;
+    --popover: 240 10% 3.9%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 14 100% 64%;
+    --primary-foreground: 0 0% 98%;
+    --secondary: 240 3.7% 15.9%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 240 3.7% 15.9%;
+    --muted-foreground: 240 5% 64.9%;
+    --accent: 240 3.7% 15.9%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 240 3.7% 15.9%;
+    --input: 240 3.7% 15.9%;
+    --ring: 14 100% 64%;
+    --radius: 0.75rem;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-meteora-gradient text-foreground min-h-screen;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+}
+
+@layer components {
+  .meteora-card {
+    @apply bg-meteora-card border border-meteora-navy-light/20 backdrop-blur-sm;
+  }
+
+  .meteora-button {
+    @apply bg-meteora-orange hover:bg-meteora-orange-dark text-white font-medium transition-all duration-200 shadow-lg hover:shadow-xl;
+  }
+
+  .meteora-button-outline {
+    @apply border border-meteora-orange text-meteora-orange hover:bg-meteora-orange hover:text-white transition-all duration-200;
+  }
+
+  .meteora-input {
+    @apply bg-meteora-navy-light/50 border border-meteora-navy-light/30 text-white placeholder:text-meteora-gray focus:border-meteora-orange focus:ring-meteora-orange/20;
+  }
+}
+
+/* Mobile-first responsive utilities */
+@layer utilities {
+  .container-mobile {
+    @apply px-4 sm:px-6 lg:px-8;
+  }
+
+  .text-responsive {
+    @apply text-sm sm:text-base lg:text-lg;
+  }
+
+  .grid-responsive {
+    @apply grid-cols-1 sm:grid-cols-2 lg:grid-cols-3;
+  }
+
+  .flex-mobile {
+    @apply flex-col sm:flex-row;
+  }
+}
