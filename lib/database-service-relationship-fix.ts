@@ -29,28 +29,11 @@ export class DatabaseService {
     offset?: number
   }): Promise<Market[]> {
     try {
-      // Use explicit join instead of relying on foreign key relationship
       let query = supabase
         .from("markets")
         .select(`
-          id,
-          slug,
-          title,
-          description,
-          category,
-          creator_id,
-          end_date,
-          resolved,
-          winning_outcome,
-          resolution_source,
-          bond_amount,
-          total_volume,
-          yes_pool_id,
-          no_pool_id,
-          oracle_config,
-          metadata,
-          created_at,
-          updated_at
+          *,
+          pools (*)
         `)
         .order("created_at", { ascending: false })
 
@@ -74,29 +57,9 @@ export class DatabaseService {
 
       if (error) throw error
 
-      // Manually fetch pools for each market to avoid relationship issues
-      const marketsWithPools = await Promise.all(
-        (markets || []).map(async (market) => {
-          try {
-            const { data: pools } = await supabase.from("pools").select("*").eq("market_id", market.id)
-
-            return {
-              ...market,
-              pools: pools || [],
-            }
-          } catch (poolError) {
-            Logger.warn("Failed to fetch pools for market", poolError as Error, { marketId: market.id })
-            return {
-              ...market,
-              pools: [],
-            }
-          }
-        }),
-      )
-
-      return marketsWithPools.map(this.mapMarketRowToMarket)
+      return (markets || []).map(this.mapMarketRowToMarket)
     } catch (error) {
-      Logger.error("Failed to get markets", error as Error, { filters })
+      Logger.error(`Failed to get markets: ${(error as Error).message}. Filters: ${JSON.stringify(filters)}`)
       throw ErrorHandler.handle(error)
     }
   }
@@ -107,35 +70,21 @@ export class DatabaseService {
         return null
       }
 
-      // First get the market
-      const { data: market, error: marketError } = await supabase
+      const { data: market, error } = await supabase
         .from("markets")
-        .select("*")
+        .select(`
+          *,
+          pools (*, pool_bins (*))
+        `)
         .eq("slug", slug.trim())
         .single()
 
-      if (marketError && marketError.code !== "PGRST116") throw marketError
+      if (error && error.code !== "PGRST116") throw error
       if (!market) return null
 
-      // Then get pools separately to avoid relationship issues
-      const { data: pools, error: poolsError } = await supabase
-        .from("pools")
-        .select(`
-          *,
-          pool_bins (*)
-        `)
-        .eq("market_id", market.id)
-
-      if (poolsError) {
-        Logger.warn("Failed to fetch pools for market", poolsError, { slug, marketId: market.id })
-      }
-
-      return this.mapMarketRowToMarket({
-        ...market,
-        pools: pools || [],
-      })
+      return this.mapMarketRowToMarket(market)
     } catch (error) {
-      Logger.error("Failed to get market", error as Error, { slug })
+      Logger.error(`Failed to get market: ${(error as Error).message}. Slug: ${slug}`)
       throw ErrorHandler.handle(error)
     }
   }
@@ -179,13 +128,13 @@ export class DatabaseService {
           }
         }
       } catch (functionError) {
-        Logger.warn("Database function failed, using fallback", functionError as Error, { marketSlug })
+        Logger.warn("Database function failed, using fallback", { error: functionError, marketSlug })
       }
 
       // Fallback to manual calculation
       return this.getMarketOddsFallback(marketSlug)
     } catch (error) {
-      Logger.error("Failed to get market odds", error as Error, { marketSlug })
+      Logger.error(`Failed to get market odds: ${(error as Error).message}. Market slug: ${marketSlug}`)
       return this.getMarketOddsFallback(marketSlug)
     }
   }
@@ -310,13 +259,13 @@ export class DatabaseService {
       )
 
       if (error) {
-        Logger.warn("Failed to save price data", error, { symbol, price })
+        Logger.warn(`Failed to save price data: ${error.message} (symbol: ${symbol}, price: ${price})`)
         // Don't throw error for price history failures
       } else {
-        Logger.info("Price data saved successfully", { symbol, price })
+        Logger.info(`Price data saved successfully for ${symbol} at ${price}`)
       }
     } catch (error) {
-      Logger.warn("Price data save exception", error as Error, { symbol, price })
+      Logger.warn(`Price data save exception: ${(error as Error).message} (symbol: ${symbol}, price: ${price})`)
       // Don't throw error for price history failures
     }
   }

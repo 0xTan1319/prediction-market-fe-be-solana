@@ -4,6 +4,7 @@ import { pythOracle } from "./pyth-oracle"
 import { transactionService, type TransactionResult } from "./transaction-service"
 import { ErrorHandler, AppError, ErrorType, Logger } from "./error-handling"
 import { databaseService } from "./database-service-relationship-fix" // Updated import
+// @ts-ignore - Temporary workaround for missing @solana/wallet-adapter-react
 import type { WalletContextState } from "@solana/wallet-adapter-react"
 import { PublicKey } from "@solana/web3.js"
 
@@ -178,7 +179,7 @@ class RealDLMMService {
             }
           }
         } catch (priceError) {
-          Logger.warn("Failed to get price adjustment for odds", priceError as Error, { marketSlug })
+          Logger.warn(`Failed to get price adjustment for odds: ${(priceError as Error).message} (market: ${marketSlug})`)
           // Continue with base odds if price adjustment fails
         }
       }
@@ -230,8 +231,11 @@ class RealDLMMService {
 
       // Calculate swap with real slippage and fees
       const priceImpact = (amountIn / pool.liquidity) * 100
-      const fee = amountIn * pool.fees
-      const outAmount = amountIn * pool.price * (1 - priceImpact / 100) - fee
+      // Calculate fee (0.3% of amountIn)
+      const feePercentage = 0.003
+      const fee = amountIn * feePercentage
+      const amountAfterFee = amountIn - fee
+      const outAmount = amountAfterFee * pool.price * (1 - priceImpact / 100)
 
       if (outAmount <= 0) {
         throw new AppError(ErrorType.SLIPPAGE_EXCEEDED, "Insufficient output amount")
@@ -240,8 +244,8 @@ class RealDLMMService {
       // Execute the actual swap transaction
       const swapParams = {
         userWallet: wallet.publicKey,
-        inputMint: new PublicKey("EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"), // USDC
-        outputMint: new PublicKey("11111111111111111111111111111112"), // Placeholder
+        inputMint: new PublicKey(pool.tokenA === "USDC" ? "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v" : pool.tokenA),
+        outputMint: new PublicKey(pool.tokenB),
         inputAmount: amountIn,
         minimumOutputAmount: outAmount * 0.99, // 1% slippage tolerance
         slippageTolerance: 1,
@@ -266,12 +270,23 @@ class RealDLMMService {
           outcome,
           tradeType: "BUY",
           amountIn,
-          amountOut: outAmount,
-          price: pool.price,
-          slippage: priceImpact,
-          fee,
-          transactionSignature: result.signature,
-        })
+        amountOut: outAmount,
+        price: pool.price,
+        slippage: priceImpact,
+        fee,
+        transactionSignature: result.signature,
+      })
+
+      // Distribute fee to liquidity providers (50% to each pool)
+      if (market) {
+        const otherPoolId = outcome === "YES" ? market.noPoolId : market.yesPoolId
+        if (otherPoolId) {
+          await Promise.all([
+            databaseService.updatePoolLiquidity(poolId, fee * 0.5),
+            databaseService.updatePoolLiquidity(otherPoolId, fee * 0.5)
+          ])
+        }
+      }
       }
 
       Logger.info("Swap executed successfully", {

@@ -36,7 +36,7 @@ CREATE TABLE markets (
 -- Pools table (DLMM pools)
 CREATE TABLE pools (
   id TEXT PRIMARY KEY,
-  market_id UUID REFERENCES markets(id),
+  market_id UUID NOT NULL REFERENCES markets(id) ON DELETE CASCADE,
   outcome TEXT NOT NULL CHECK (outcome IN ('YES', 'NO')),
   token_a TEXT NOT NULL,
   token_b TEXT NOT NULL,
@@ -66,9 +66,9 @@ CREATE TABLE pool_bins (
 -- Trades table
 CREATE TABLE trades (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  user_id UUID REFERENCES users(id),
-  market_id UUID REFERENCES markets(id),
-  pool_id TEXT REFERENCES pools(id),
+  user_id UUID NOT NULL REFERENCES users(id) ON DELETE SET NULL,
+  market_id UUID NOT NULL REFERENCES markets(id) ON DELETE SET NULL,
+  pool_id TEXT NOT NULL REFERENCES pools(id) ON DELETE SET NULL,
   outcome TEXT NOT NULL CHECK (outcome IN ('YES', 'NO')),
   trade_type TEXT NOT NULL CHECK (trade_type IN ('BUY', 'SELL')),
   amount_in DECIMAL(20, 9) NOT NULL,
@@ -85,8 +85,8 @@ CREATE TABLE trades (
 -- Liquidity positions table
 CREATE TABLE liquidity_positions (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  user_id UUID REFERENCES users(id),
-  pool_id TEXT REFERENCES pools(id),
+  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  pool_id TEXT NOT NULL REFERENCES pools(id) ON DELETE CASCADE,
   bin_id INTEGER,
   liquidity_amount DECIMAL(20, 9) NOT NULL,
   token_a_amount DECIMAL(20, 9) NOT NULL,
