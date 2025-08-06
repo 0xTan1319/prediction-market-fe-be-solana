@@ -1,10 +1,4 @@
-# Pool Odds 
-
-> **Where Liquidity Meets Prophecy** 🔮💧
-
-<img width="757" alt="Screenshot 2025-06-27 at 00 03 09" src="https://github.com/user-attachments/assets/b8918d3b-d320-44da-845a-c61ac5579342" />
-
----
+# Solana Prediction Market 
 
 A simple Solana-based prediction market platform powered by Meteora's Dynamic Liquidity Market Makers (DLMM) SDK, built with the Anchor framework.
 
@@ -21,7 +15,15 @@ flowchart TD
 
 ## 🌟 Overview
 
-Pool Odds revolutionizes prediction markets by using liquidity depth to determine market confidence and odds, rather than just token prices. The deeper the liquidity pool, the more confident the market prediction becomes.
+Solana prediction markets by using liquidity depth to determine market confidence and odds, rather than just token prices. The deeper the liquidity pool, the more confident the market prediction becomes.
+
+## Contact
+
+If you have any question, contract here: [Telegram](https://t.me/shiny0103)
+
+## Relation projects
+
+- [Smart Contract](https://github.com/L9T-Development/prediction-market-contract-main-solana)
 
 ### Key Features
 
@@ -31,22 +33,6 @@ Pool Odds revolutionizes prediction markets by using liquidity depth to determin
 - **💰 Dynamic Fees**: Fee rates adjust based on pool imbalances
 - **🛡️ Security First**: Comprehensive validation and overflow protection
 - **⚡ High Performance**: Optimized for Solana's speed and efficiency
-
-## 🚀 Getting Started
-
-### Prerequisites
-- Node.js v18+
-- Rust v1.70+
-- Solana CLI v1.18+
-- Anchor CLI v0.28+
-
-### Installation
-```bash
-git clone https://github.com/yllvar/pool-odds.git
-cd pool-odds
-pnpm install
-anchor build
-```
 
 ## 🏗️ Architecture
 
@@ -119,23 +105,6 @@ graph TD
     MarketCard --> TradingInterface
     TradingInterface --> WalletButton
 ```
-
-### Smart Contracts
-```bash
-# Build program
-anchor build
-
-# Test program
-anchor test
-
-# Deploy to devnet
-anchor deploy
-```
-
-## 🔗 Integrations
-- **Meteora DLMM**: Advanced liquidity pool math
-- **Supabase**: Real-time market data
-- **Pyth Network**: Oracle price feeds
 
 ## 🧪 Testing
 Run the full test suite:
