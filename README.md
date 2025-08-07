@@ -7,7 +7,7 @@ flowchart TD
     A[Frontend\nNext.js] --> B[Backend\nAPI Routes]
     B --> C[Supabase\nDatabase]
     A --> D[Solana\nBlockchain]
-    D --> E[Pool Odds\nProgram]
+    D --> E[prediction-market\nProgram]
     E --> F[Pyth Oracle]
     C -->|Market Data| A
     E -->|On-chain Data| A
